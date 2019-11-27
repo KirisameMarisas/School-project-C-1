@@ -13,6 +13,10 @@ namespace WpfTutorialSamples.Rich_text_controls
 {
     public partial class RichTextEditorSample : Window
     {
+        private string _fileName = null;
+
+        private string _dataFormat = null;
+
         public RichTextEditorSample()
         {
             InitializeComponent();
@@ -38,24 +42,40 @@ namespace WpfTutorialSamples.Rich_text_controls
         private void Open_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Rich Text Format (*.rtf)|*.rtf|All files (*.*)|*.*";
+            dlg.Filter = "Rich Text Format (*.rtf)|*.rtf|Plain Text (*.txt)|*.txt";
             if (dlg.ShowDialog() == true)
             {
                 FileStream fileStream = new FileStream(dlg.FileName, FileMode.Open);
                 TextRange range = new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
-                range.Load(fileStream, DataFormats.Rtf);
+                _dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
+                _fileName = dlg.FileName;
+                range.Load(fileStream, _dataFormat);
+                fileStream.Close();
             }
         }
 
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            FileStream fileStream = null;
+            TextRange range =  new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
+            if (_fileName != null)
+            {
+                fileStream = new FileStream(_fileName, FileMode.Create);
+                range.Save(fileStream, _dataFormat);
+                fileStream.Close();
+                return;
+            }
             SaveFileDialog dlg = new SaveFileDialog();
-            dlg.Filter = "Rich Text Format (*.rtf)|*.rtf|All files (*.*)|*.*";
+            dlg.Filter = "Rich Text Format (*.rtf)|*.rtf|Plain Text (*.txt)|*.txt";
             if (dlg.ShowDialog() == true)
             {
-                FileStream fileStream = new FileStream(dlg.FileName, FileMode.Create);
-                TextRange range = new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
-                range.Save(fileStream, DataFormats.Rtf);
+                fileStream = new FileStream(dlg.FileName, FileMode.Create);
+                _dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
+                range.Save(fileStream, _dataFormat);
+            }
+            if (fileStream != null)
+            {
+                fileStream.Close();
             }
         }
 
