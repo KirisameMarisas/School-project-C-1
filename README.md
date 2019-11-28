@@ -3,8 +3,7 @@ C# teamwork1
 
 ## Wating to solve
 
-1. File close
-2. Search and Replace
-3. Color
-4. Save tips while close the file
-5. Beautify the typographic 
+1. Search and Replace
+2. Color
+3. Save tips while close the file
+4. Beautify the typographic 

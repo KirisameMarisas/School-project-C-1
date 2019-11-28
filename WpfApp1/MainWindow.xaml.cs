@@ -24,6 +24,8 @@ namespace WpfTutorialSamples.Rich_text_controls
             InitializeComponent();
             cmbFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
             cmbFontSize.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
+            var names = typeof(Brushes).GetProperties().Select(p => p.Name).ToArray();
+            cmbColour.ItemsSource = names;
         }
 
         private void rtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
@@ -125,6 +127,26 @@ namespace WpfTutorialSamples.Rich_text_controls
         private void rtbEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
             _flagChange = true;
+        }
+
+        private void cmbColour_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string temp = cmbColour.SelectedItem.ToString();
+            var values = typeof(Brushes).GetProperties().Select(p => new { Name = p.Name, Brush = p.GetValue(null) as Brush }).ToArray();
+            if (cmbColour.SelectedItem != null)
+            {
+                Brush brush = null;
+                
+                foreach (var element in values)
+                {
+                    if (element.Name == temp)
+                    {
+                        brush = element.Brush;
+                        break;
+                    }
+                }
+                rtbEditor.Selection.ApplyPropertyValue(Inline.ForegroundProperty, brush);
+            }
         }
     }
 }
