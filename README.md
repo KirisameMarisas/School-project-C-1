@@ -4,6 +4,5 @@ C# teamwork1
 ## Wating to solve
 
 1. Search and Replace
-2. Color
-3. Save tips while close the file
-4. Beautify the typographic 
+2. Save tips while close the file
+3. Beautify the typographic 
