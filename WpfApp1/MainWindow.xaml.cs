@@ -17,6 +17,8 @@ namespace WpfTutorialSamples.Rich_text_controls
 
         private string _dataFormat = null;
 
+        private bool _flagChange = false;
+
         public RichTextEditorSample()
         {
             InitializeComponent();
@@ -54,6 +56,33 @@ namespace WpfTutorialSamples.Rich_text_controls
             }
         }
 
+        private void Close_Executed(object sender,ExecutedRoutedEventArgs e)
+        {
+            if (_flagChange)
+            {
+                MessageBoxResult messageBox = MessageBox.Show("This file has changed, Save?", "Save tip", MessageBoxButton.YesNoCancel);
+
+                switch (messageBox)
+                {
+                    case MessageBoxResult.Yes:
+                    {
+                        Save_Executed(null, null);
+                        break;
+                    }
+                    case MessageBoxResult.No:
+                    {
+                        break;
+                    }
+                    case MessageBoxResult.Cancel:
+                    {
+                        return;
+                    }
+                }
+            }
+            rtbEditor.Document.Blocks.Clear();
+            _fileName = null;
+            
+        }
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             FileStream fileStream = null;
@@ -63,6 +92,7 @@ namespace WpfTutorialSamples.Rich_text_controls
                 fileStream = new FileStream(_fileName, FileMode.Create);
                 range.Save(fileStream, _dataFormat);
                 fileStream.Close();
+                _flagChange = false;
                 return;
             }
             SaveFileDialog dlg = new SaveFileDialog();
@@ -77,6 +107,7 @@ namespace WpfTutorialSamples.Rich_text_controls
             {
                 fileStream.Close();
             }
+            _flagChange = false;
         }
 
         private void cmbFontFamily_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -88,6 +119,12 @@ namespace WpfTutorialSamples.Rich_text_controls
         private void cmbFontSize_TextChanged(object sender, TextChangedEventArgs e)
         {
             rtbEditor.Selection.ApplyPropertyValue(Inline.FontSizeProperty, cmbFontSize.Text);
+        }
+
+
+        private void rtbEditor_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _flagChange = true;
         }
     }
 }

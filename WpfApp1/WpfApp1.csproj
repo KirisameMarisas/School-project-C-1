@@ -107,5 +107,8 @@
     <Resource Include="Images\Italic.jpg" />
     <Resource Include="Images\Underline.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Close.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,6 +5,7 @@
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" Executed="Open_Executed" />
         <CommandBinding Command="ApplicationCommands.Save" Executed="Save_Executed" />
+        <CommandBinding Command="ApplicationCommands.Close" Executed="Close_Executed"/>
     </Window.CommandBindings>
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
@@ -13,6 +14,9 @@
             </Button>
             <Button Command="ApplicationCommands.Save">
                 <Image Source="Images\folder.png" Width="16" Height="16" />
+            </Button>
+            <Button Command="ApplicationCommands.Close">
+                <Image Source="Images\Close.jpg" Width="16" Height="16" />
             </Button>
             <Separator />
             <ToggleButton Command="EditingCommands.ToggleBold" Name="btnBold">
@@ -28,6 +32,6 @@
             <ComboBox Name="cmbFontFamily" Width="150" SelectionChanged="cmbFontFamily_SelectionChanged" />
             <ComboBox Name="cmbFontSize" Width="50" IsEditable="True" TextBoxBase.TextChanged="cmbFontSize_TextChanged" />
         </ToolBar>
-        <RichTextBox Name="rtbEditor" SelectionChanged="rtbEditor_SelectionChanged" />
+        <RichTextBox Name="rtbEditor" SelectionChanged="rtbEditor_SelectionChanged" TextChanged="rtbEditor_TextChanged" />
     </DockPanel>
 </Window>
