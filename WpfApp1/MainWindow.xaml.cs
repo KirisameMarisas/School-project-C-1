@@ -19,15 +19,48 @@ namespace WpfTutorialSamples.Rich_text_controls
 
         private bool flagChange = false;
 
+        private RichTextBox rtbEditor = null;
+
+        private int items = 1;
+
         public RichTextEditorSample()
         {
             InitializeComponent();
+            rtbEditor = rtbEditor1;
+            
             cmbFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
             cmbFontSize.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
             var names = typeof(Brushes).GetProperties().Select(p => p.Name).ToArray();
             cmbColour.ItemsSource = names;
+
             rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true);
             rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true);
+        }
+
+        private void NewFile(string fileName)
+        {
+            string temp = "rtbEtitor" + (items++).ToString();
+
+            fileName = Path.GetFileName(fileName);
+
+            RichTextBox newRtb = new RichTextBox
+            {
+                Name = temp
+            };
+
+            
+            TabItem newItem = new TabItem
+            {
+                Header = fileName,
+                Name = temp,
+                Content = newRtb
+            };
+
+            rtbEditor = newRtb;
+            rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true);
+            rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true);
+            tabControl.Items.Add(newItem);
+            newItem.IsSelected = true;
         }
 
         private void rtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
@@ -52,6 +85,7 @@ namespace WpfTutorialSamples.Rich_text_controls
             if (dlg.ShowDialog() == true)
             {
                 dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
+                NewFile(dlg.FileName);
                 Open_File(dlg.FileName);
             }
         }
@@ -65,6 +99,7 @@ namespace WpfTutorialSamples.Rich_text_controls
                 this.fileName = fileName;
                 range.Load(fileStream, dataFormat);
                 fileStream.Close();
+                (tabControl.SelectedItem as TabItem).Header = Path.GetFileName(fileName);
             }catch(Exception e)
             {
                 MessageBox.Show("File could not be opened. Make sure the file is a supported file.");

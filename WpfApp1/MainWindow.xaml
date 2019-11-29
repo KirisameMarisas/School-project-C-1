@@ -36,6 +36,13 @@
                 <Image Source="Images\Search.png" Width="16" Height="16" />
             </Button>
         </ToolBar>
-        <RichTextBox Name="rtbEditor" SelectionChanged="rtbEditor_SelectionChanged" TextChanged="rtbEditor_TextChanged" Drop="rtbEditor_Drop" DragOver="rtbEditor_DragOver" />
+        <TabControl Name="tabControl" Width="460" Margin="0,-0.333">
+            <TabItem Header="File1">
+                <RichTextBox Name="rtbEditor1" SelectionChanged="rtbEditor_SelectionChanged" TextChanged="rtbEditor_TextChanged" Drop="rtbEditor_Drop" DragOver="rtbEditor_DragOver" />
+            </TabItem>
+            
+        </TabControl>
+
+
     </DockPanel>
 </Window>
