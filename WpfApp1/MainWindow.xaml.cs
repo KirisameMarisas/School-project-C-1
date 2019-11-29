@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 using System.Windows.Controls;
+using System.Reflection;
 
 namespace WpfTutorialSamples.Rich_text_controls
 {
@@ -30,8 +31,8 @@ namespace WpfTutorialSamples.Rich_text_controls
             
             cmbFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
             cmbFontSize.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
-            var names = typeof(Brushes).GetProperties().Select(p => p.Name).ToArray();
-            cmbColour.ItemsSource = names;
+
+            cmbColour.ItemsSource = typeof(Colors).GetProperties();
 
             rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true);
             rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true);
@@ -198,22 +199,14 @@ namespace WpfTutorialSamples.Rich_text_controls
 
         private void cmbColour_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string temp = cmbColour.SelectedItem.ToString();
-            var values = typeof(Brushes).GetProperties().Select(p => new { Name = p.Name, Brush = p.GetValue(null) as Brush }).ToArray();
-            if (cmbColour.SelectedItem != null)
+            if (cmbColour.SelectedItem == null)
             {
-                Brush brush = null;
-                
-                foreach (var element in values)
-                {
-                    if (element.Name == temp)
-                    {
-                        brush = element.Brush;
-                        break;
-                    }
-                }
-                rtbEditor.Selection.ApplyPropertyValue(Inline.ForegroundProperty, brush);
+                return;
             }
+            Color tempColor = ((Color)(cmbColour.SelectedItem as PropertyInfo).GetValue(null, null));
+            SolidColorBrush solidColorBrush = new SolidColorBrush(tempColor);
+            
+            rtbEditor.Selection.ApplyPropertyValue(Inline.ForegroundProperty, solidColorBrush);
         }
 
         private void rtbEditor_Drop(object sender, DragEventArgs e)
