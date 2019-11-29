@@ -131,7 +131,23 @@ namespace WpfTutorialSamples.Rich_text_controls
             }
             rtbEditor.Document.Blocks.Clear();
             fileName = null;
-            
+
+            int length = tabControl.Items.Count;
+            if (length == 1)
+            {
+                (tabControl.SelectedItem as TabItem).Header = "File1";
+            }else
+            {
+                int itemIndex = tabControl.SelectedIndex;
+                if (itemIndex != 1)
+                {
+                    tabControl.SelectedIndex = itemIndex - 1;
+                }
+                tabControl.Items.RemoveAt(itemIndex);
+                fileName = (tabControl.SelectedItem as TabItem).Header as string;
+            }
+            rtbEditor = ((tabControl.SelectedItem as TabItem).Content) as RichTextBox;
+            flagChange = false;
         }
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
@@ -143,6 +159,7 @@ namespace WpfTutorialSamples.Rich_text_controls
                 range.Save(fileStream, dataFormat);
                 fileStream.Close();
                 flagChange = false;
+                (tabControl.SelectedItem as TabItem).Header = Path.GetFileName(fileName);
                 return;
             }
             SaveFileDialog dlg = new SaveFileDialog();
@@ -150,8 +167,10 @@ namespace WpfTutorialSamples.Rich_text_controls
             if (dlg.ShowDialog() == true)
             {
                 fileStream = new FileStream(dlg.FileName, FileMode.Create);
+                (tabControl.SelectedItem as TabItem).Header = Path.GetFileName(dlg.FileName);
                 dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
                 range.Save(fileStream, dataFormat);
+                fileName = dlg.FileName;
             }
             if (fileStream != null)
             {
@@ -240,6 +259,15 @@ namespace WpfTutorialSamples.Rich_text_controls
                 e.Effects = DragDropEffects.None;
             }
             e.Handled = false;
+        }
+
+        private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (tabControl.SelectedItem != null)
+            {
+                rtbEditor = ((tabControl.SelectedItem) as TabItem).Content as RichTextBox;
+            }
+            
         }
     }
 }
