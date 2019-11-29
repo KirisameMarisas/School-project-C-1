@@ -51,15 +51,26 @@ namespace WpfTutorialSamples.Rich_text_controls
             dlg.Filter = "Rich Text Format (*.rtf)|*.rtf|Plain Text (*.txt)|*.txt";
             if (dlg.ShowDialog() == true)
             {
-                FileStream fileStream = new FileStream(dlg.FileName, FileMode.Open);
-                TextRange range = new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
                 dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
-                fileName = dlg.FileName;
-                range.Load(fileStream, dataFormat);
-                fileStream.Close();
+                Open_File(dlg.FileName);
             }
         }
 
+        private void Open_File(string fileName)
+        {
+            try
+            {
+                FileStream fileStream = new FileStream(fileName, FileMode.Open);
+                TextRange range = new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
+                this.fileName = fileName;
+                range.Load(fileStream, dataFormat);
+                fileStream.Close();
+            }catch(Exception e)
+            {
+                MessageBox.Show("File could not be opened. Make sure the file is a supported file.");
+                return;
+            }
+        }
         private void Close_Executed(object sender,ExecutedRoutedEventArgs e)
         {
             if (flagChange)
@@ -162,48 +173,24 @@ namespace WpfTutorialSamples.Rich_text_controls
                 if (typeofFile == ".rtf")
                 {
                     dataFormat = DataFormats.Rtf;
+
                 }
                 else
                 {
                     if (typeofFile == ".txt")
                     {
                         dataFormat = DataFormats.Text;
-                    }else
+                    }
+                    else
                     {
                         //error 
-                        MessageBox.Show("File could not be opened. Make sure the file is a supported file.");
+                        dataFormat = null;
+                        //MessageBox.Show("File could not be opened. Make sure the file is a supported file.");
                     }
+                
                 }
-
-                /*
-                // By default, open as Rich Text (RTF).
-                var dataFormat = DataFormats.Rtf;
-
-                // If the Shift key is pressed, open as plain text.
-                if (e.KeyStates == DragDropKeyStates.ShiftKey)
-                {
-                    dataFormat = DataFormats.Text;
-                }
-
-                System.Windows.Documents.TextRange range;
-                System.IO.FileStream fStream;
-                if (System.IO.File.Exists(docPath[0]))
-                {
-                    try
-                    {
-                        // Open the document in the RichTextBox.
-                        range = new System.Windows.Documents.TextRange(rtEditor.Document.ContentStart, rtEditor.Document.ContentEnd);
-                        fStream = new System.IO.FileStream(docPath[0], System.IO.FileMode.OpenOrCreate);
-                        range.Load(fStream, dataFormat);
-                        fStream.Close();
-                    }
-                    catch (System.Exception)
-                    {
-                        MessageBox.Show("File could not be opened. Make sure the file is a text file.");
-                    }
-                }
-                */
-                rtbEditor.AppendText(docPath[0]);
+                Open_File(docPath[0]);
+                
             }
         }
 
