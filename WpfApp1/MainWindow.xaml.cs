@@ -13,11 +13,11 @@ namespace WpfTutorialSamples.Rich_text_controls
 {
     public partial class RichTextEditorSample : Window
     {
-        private string _fileName = null;
+        private string fileName = null;
 
-        private string _dataFormat = null;
+        private string dataFormat = null;
 
-        private bool _flagChange = false;
+        private bool flagChange = false;
 
         public RichTextEditorSample()
         {
@@ -26,6 +26,8 @@ namespace WpfTutorialSamples.Rich_text_controls
             cmbFontSize.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
             var names = typeof(Brushes).GetProperties().Select(p => p.Name).ToArray();
             cmbColour.ItemsSource = names;
+            rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true);
+            rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true);
         }
 
         private void rtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
@@ -51,16 +53,16 @@ namespace WpfTutorialSamples.Rich_text_controls
             {
                 FileStream fileStream = new FileStream(dlg.FileName, FileMode.Open);
                 TextRange range = new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
-                _dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
-                _fileName = dlg.FileName;
-                range.Load(fileStream, _dataFormat);
+                dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
+                fileName = dlg.FileName;
+                range.Load(fileStream, dataFormat);
                 fileStream.Close();
             }
         }
 
         private void Close_Executed(object sender,ExecutedRoutedEventArgs e)
         {
-            if (_flagChange)
+            if (flagChange)
             {
                 MessageBoxResult messageBox = MessageBox.Show("This file has changed, Save?", "Save tip", MessageBoxButton.YesNoCancel);
 
@@ -82,19 +84,19 @@ namespace WpfTutorialSamples.Rich_text_controls
                 }
             }
             rtbEditor.Document.Blocks.Clear();
-            _fileName = null;
+            fileName = null;
             
         }
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             FileStream fileStream = null;
             TextRange range =  new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
-            if (_fileName != null)
+            if (fileName != null)
             {
-                fileStream = new FileStream(_fileName, FileMode.Create);
-                range.Save(fileStream, _dataFormat);
+                fileStream = new FileStream(fileName, FileMode.Create);
+                range.Save(fileStream, dataFormat);
                 fileStream.Close();
-                _flagChange = false;
+                flagChange = false;
                 return;
             }
             SaveFileDialog dlg = new SaveFileDialog();
@@ -102,14 +104,14 @@ namespace WpfTutorialSamples.Rich_text_controls
             if (dlg.ShowDialog() == true)
             {
                 fileStream = new FileStream(dlg.FileName, FileMode.Create);
-                _dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
-                range.Save(fileStream, _dataFormat);
+                dataFormat = dlg.FilterIndex == 2 ? DataFormats.Text : DataFormats.Rtf;
+                range.Save(fileStream, dataFormat);
             }
             if (fileStream != null)
             {
                 fileStream.Close();
             }
-            _flagChange = false;
+            flagChange = false;
         }
 
         private void cmbFontFamily_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -126,7 +128,7 @@ namespace WpfTutorialSamples.Rich_text_controls
 
         private void rtbEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
-            _flagChange = true;
+            flagChange = true;
         }
 
         private void cmbColour_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -147,6 +149,75 @@ namespace WpfTutorialSamples.Rich_text_controls
                 }
                 rtbEditor.Selection.ApplyPropertyValue(Inline.ForegroundProperty, brush);
             }
+        }
+
+        private void rtbEditor_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] docPath = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                string typeofFile = Path.GetExtension(docPath[0]);
+
+                if (typeofFile == ".rtf")
+                {
+                    dataFormat = DataFormats.Rtf;
+                }
+                else
+                {
+                    if (typeofFile == ".txt")
+                    {
+                        dataFormat = DataFormats.Text;
+                    }else
+                    {
+                        //error 
+                        MessageBox.Show("File could not be opened. Make sure the file is a supported file.");
+                    }
+                }
+
+                /*
+                // By default, open as Rich Text (RTF).
+                var dataFormat = DataFormats.Rtf;
+
+                // If the Shift key is pressed, open as plain text.
+                if (e.KeyStates == DragDropKeyStates.ShiftKey)
+                {
+                    dataFormat = DataFormats.Text;
+                }
+
+                System.Windows.Documents.TextRange range;
+                System.IO.FileStream fStream;
+                if (System.IO.File.Exists(docPath[0]))
+                {
+                    try
+                    {
+                        // Open the document in the RichTextBox.
+                        range = new System.Windows.Documents.TextRange(rtEditor.Document.ContentStart, rtEditor.Document.ContentEnd);
+                        fStream = new System.IO.FileStream(docPath[0], System.IO.FileMode.OpenOrCreate);
+                        range.Load(fStream, dataFormat);
+                        fStream.Close();
+                    }
+                    catch (System.Exception)
+                    {
+                        MessageBox.Show("File could not be opened. Make sure the file is a text file.");
+                    }
+                }
+                */
+                rtbEditor.AppendText(docPath[0]);
+            }
+        }
+
+        private void rtbEditor_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.All;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = false;
         }
     }
 }

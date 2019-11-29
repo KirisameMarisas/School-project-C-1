@@ -33,6 +33,6 @@
             <ComboBox Name="cmbFontSize" Width="50" IsEditable="True" TextBoxBase.TextChanged="cmbFontSize_TextChanged" />
             <ComboBox Name="cmbColour" Width="50" Margin="0,2,0,0" VerticalAlignment="Top" SelectionChanged="cmbColour_SelectionChanged"/>
         </ToolBar>
-        <RichTextBox Name="rtbEditor" SelectionChanged="rtbEditor_SelectionChanged" TextChanged="rtbEditor_TextChanged" />
+        <RichTextBox Name="rtbEditor" SelectionChanged="rtbEditor_SelectionChanged" TextChanged="rtbEditor_TextChanged" Drop="rtbEditor_Drop" DragOver="rtbEditor_DragOver" />
     </DockPanel>
 </Window>
