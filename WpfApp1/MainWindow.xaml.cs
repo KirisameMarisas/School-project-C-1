@@ -24,23 +24,27 @@ namespace WpfTutorialSamples.Rich_text_controls
 
         private int items = 1;
 
+        private List<TextRange> SearchResults;
+
+        private int NextReplaceIndex = 0;
+
         public RichTextEditorSample()
         {
-            InitializeComponent();
-            rtbEditor = rtbEditor1;
+            InitializeComponent(); //Initialize the original window from .xaml file.
+            rtbEditor = rtbEditor1; // Set the current tab Editor
             
-            cmbFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source);
-            cmbFontSize.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 };
+            cmbFontFamily.ItemsSource = Fonts.SystemFontFamilies.OrderBy(f => f.Source); // Initialize the Font Families
+            cmbFontSize.ItemsSource = new List<double>() { 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72 }; // Initialize the Font Size
 
-            cmbColour.ItemsSource = typeof(Colors).GetProperties();
+            cmbColour.ItemsSource = typeof(Colors).GetProperties(); //Initiallze the Colour tab
 
-            rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true);
-            rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true);
+            rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true); //Bind the Drop function
+            rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true); // Ibid.
         }
 
         private void NewFile(string fileName)
         {
-            string temp = "rtbEtitor" + (items++).ToString();
+            string temp = "rtbEtitor" + (items++).ToString(); // Get New File Tab Name
 
             fileName = Path.GetFileName(fileName);
 
@@ -57,15 +61,19 @@ namespace WpfTutorialSamples.Rich_text_controls
                 Content = newRtb
             };
 
-            rtbEditor = newRtb;
+            rtbEditor = newRtb; // Set the current tab Editor
             rtbEditor.AddHandler(RichTextBox.DropEvent, new DragEventHandler(rtbEditor_Drop), true);
             rtbEditor.AddHandler(RichTextBox.DragOverEvent, new DragEventHandler(rtbEditor_DragOver), true);
-            tabControl.Items.Add(newItem);
-            newItem.IsSelected = true;
+            tabControl.Items.Add(newItem); // TabController add this tab
+            newItem.IsSelected = true; // Select this tab
         }
 
         private void rtbEditor_SelectionChanged(object sender, RoutedEventArgs e)
         {
+            this.ClearSearchResult();
+            return;
+            // It has something worng in this function , so it will be deleted
+            //rtbEditor.Selection.Select(rtbEditor.Selection.Start, rtbEditor.Selection.Start);
             object temp = rtbEditor.Selection.GetPropertyValue(Inline.FontWeightProperty);
             btnBold.IsChecked = (temp != DependencyProperty.UnsetValue) && (temp.Equals(FontWeights.Bold));
             temp = rtbEditor.Selection.GetPropertyValue(Inline.FontStyleProperty);
@@ -77,8 +85,10 @@ namespace WpfTutorialSamples.Rich_text_controls
             cmbFontFamily.SelectedItem = temp;
             temp = rtbEditor.Selection.GetPropertyValue(Inline.FontSizeProperty);
             cmbFontSize.Text = temp.ToString();
+
         }
 
+        //Open the file trigger
         private void Open_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             OpenFileDialog dlg = new OpenFileDialog();
@@ -91,6 +101,7 @@ namespace WpfTutorialSamples.Rich_text_controls
             }
         }
 
+        //Open the file function 
         private void Open_File(string fileName)
         {
             try
@@ -107,11 +118,13 @@ namespace WpfTutorialSamples.Rich_text_controls
                 return;
             }
         }
+
+        //Close File trigger
         private void Close_Executed(object sender,ExecutedRoutedEventArgs e)
         {
             if (flagChange)
             {
-                MessageBoxResult messageBox = MessageBox.Show("This file has changed, Save?", "Save tip", MessageBoxButton.YesNoCancel);
+                MessageBoxResult messageBox = MessageBox.Show("This file has changed, Save?", "Save tip", MessageBoxButton.YesNoCancel); //Show the 'Save tip' Message
 
                 switch (messageBox)
                 {
@@ -130,9 +143,10 @@ namespace WpfTutorialSamples.Rich_text_controls
                     }
                 }
             }
-            rtbEditor.Document.Blocks.Clear();
+            rtbEditor.Document.Blocks.Clear(); //Clear the Editor Context
             fileName = null;
 
+            // Modify the TabController 
             int length = tabControl.Items.Count;
             if (length == 1)
             {
@@ -150,10 +164,13 @@ namespace WpfTutorialSamples.Rich_text_controls
             rtbEditor = ((tabControl.SelectedItem as TabItem).Content) as RichTextBox;
             flagChange = false;
         }
+
+        //Save trigger
         private void Save_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             FileStream fileStream = null;
             TextRange range =  new TextRange(rtbEditor.Document.ContentStart, rtbEditor.Document.ContentEnd);
+            // If the file if created by program
             if (fileName != null)
             {
                 fileStream = new FileStream(fileName, FileMode.Create);
@@ -163,6 +180,7 @@ namespace WpfTutorialSamples.Rich_text_controls
                 (tabControl.SelectedItem as TabItem).Header = Path.GetFileName(fileName);
                 return;
             }
+            // If the file opened
             SaveFileDialog dlg = new SaveFileDialog();
             dlg.Filter = "Rich Text Format (*.rtf)|*.rtf|Plain Text (*.txt)|*.txt";
             if (dlg.ShowDialog() == true)
@@ -180,23 +198,40 @@ namespace WpfTutorialSamples.Rich_text_controls
             flagChange = false;
         }
 
+        //Change the Font Family trigger
         private void cmbFontFamily_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (cmbFontFamily.SelectedItem != null)
-                rtbEditor.Selection.ApplyPropertyValue(Inline.FontFamilyProperty, cmbFontFamily.SelectedItem);
+            try
+            {
+                if (cmbFontFamily.SelectedItem != null)
+                    rtbEditor.Selection.ApplyPropertyValue(Inline.FontFamilyProperty, cmbFontFamily.SelectedItem);
+            }catch(Exception)
+            {
+                return;
+            }
+            
         }
 
+        //Change the Font Size trigger
         private void cmbFontSize_TextChanged(object sender, TextChangedEventArgs e)
         {
-            rtbEditor.Selection.ApplyPropertyValue(Inline.FontSizeProperty, cmbFontSize.Text);
+            try
+            {
+                rtbEditor.Selection.ApplyPropertyValue(Inline.FontSizeProperty, cmbFontSize.Text);
+            }catch(Exception)
+            {
+                return;
+            }
         }
 
 
+        // Flag the Editor Change
         private void rtbEditor_TextChanged(object sender, TextChangedEventArgs e)
         {
             flagChange = true;
         }
 
+        // Change Colour trigger
         private void cmbColour_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cmbColour.SelectedItem == null)
@@ -209,8 +244,11 @@ namespace WpfTutorialSamples.Rich_text_controls
             rtbEditor.Selection.ApplyPropertyValue(Inline.ForegroundProperty, solidColorBrush);
         }
 
+
+        // Drop file to the Editor field function
         private void rtbEditor_Drop(object sender, DragEventArgs e)
         {
+            this.ClearSearchResult();
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] docPath = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -241,6 +279,7 @@ namespace WpfTutorialSamples.Rich_text_controls
             }
         }
 
+        // Drop over function
         private void rtbEditor_DragOver(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -254,13 +293,130 @@ namespace WpfTutorialSamples.Rich_text_controls
             e.Handled = false;
         }
 
+        //Change the Editor after changing the tab
         private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            this.ClearSearchResult();
             if (tabControl.SelectedItem != null)
             {
                 rtbEditor = ((tabControl.SelectedItem) as TabItem).Content as RichTextBox;
             }
-            
+        }
+
+        //Reset the Editor
+        private void ClearSearchResult()
+        {
+            if (this.SearchResults != null)
+            {
+                foreach (TextRange range in this.SearchResults)
+                {
+                    range.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
+                }
+            }
+            this.SearchResults = null;
+            this.NextReplaceIndex = 0;
+        }
+        // Search  function
+        private List<TextRange> Search(TextPointer position, string word)
+        {
+            List<TextRange> matchingText = new List<TextRange>();
+            while (position != null)
+            {
+                if (position.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+                {
+                    //带有内容的文本
+                    string textRun = position.GetTextInRun(LogicalDirection.Forward);
+
+                    //查找关键字在这文本中的位置
+                    int indexInRun = textRun.IndexOf(word);
+                    int indexHistory = 0;
+                    while (indexInRun >= 0)
+                    {
+                        TextPointer start = position.GetPositionAtOffset(indexInRun + indexHistory);
+                        TextPointer end = start.GetPositionAtOffset(word.Length);
+                        matchingText.Add(new TextRange(start, end));
+
+                        indexHistory = indexHistory + indexInRun + word.Length;
+                        textRun = textRun.Substring(indexInRun + word.Length);//去掉已经采集过的内容
+                        indexInRun = textRun.IndexOf(word);//重新判断新的字符串是否还有关键字
+                    }
+                }
+
+                position = position.GetNextContextPosition(LogicalDirection.Forward);
+            }
+            return matchingText;
+        }
+
+        //Replace Next function
+        private void ReplaceNext(string keyword)
+        {
+            if (this.SearchResults == null || this.NextReplaceIndex >= this.SearchResults.Count)
+            {
+                this.ClearSearchResult();
+                return;
+            }
+            TextRange range = this.SearchResults[this.NextReplaceIndex];
+            range.Text = keyword;
+            range.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.White);
+            this.NextReplaceIndex += 1;
+        }
+
+        // Replace All function
+        private void ReplaceAll(string keyword)
+        {
+            while (this.SearchResults != null)
+            {
+                this.ReplaceNext(keyword);
+            }
+        }
+
+        // Initiallze ToolBar
+        private void ToolBar_Loaded(object sender, RoutedEventArgs e)
+        {
+            ToolBar toolbar = sender as ToolBar;
+
+            var overflowGrid = toolbar.Template.FindName("OverflowGrid", toolbar) as FrameworkElement;
+            var mainPanelBorder = toolbar.Template.FindName("MainPanelBorder", toolbar) as FrameworkElement;
+
+            if (overflowGrid != null)
+            {
+                overflowGrid.Visibility = Visibility.Collapsed;
+            }
+            if (mainPanelBorder != null)
+            {
+                mainPanelBorder.Margin = new Thickness(0);
+            }
+        }
+
+        // Click Buttons trigger
+        private void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(this.SearchTextBox.Text))
+            {
+                return;
+            }
+            this.ClearSearchResult();
+            this.SearchResults = this.Search(this.rtbEditor.Document.ContentStart, this.SearchTextBox.Text);
+            foreach (TextRange range in this.SearchResults)
+            {
+                range.ApplyPropertyValue(TextElement.BackgroundProperty, Brushes.DarkCyan);
+            }
+        }
+
+        private void ReplaceNextButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ReplaceNext(this.ReplaceTextBox.Text);
+        }
+
+        private void ReplaceAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.ReplaceAll(this.ReplaceTextBox.Text);
+        }
+
+        //Windows closing trigger
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Close_Executed(null, null);
         }
     }
 }
