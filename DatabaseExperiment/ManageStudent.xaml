@@ -1,0 +1,39 @@
+﻿<Page x:Class="DatabaseExperiment.ManageStudent"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:DatabaseExperiment"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ManageStudent" Background="#FFF8F8F8">
+
+    <Grid>
+
+        <DataGrid Name="defaultData" HorizontalAlignment="Left" Height="298" Margin="0,142,0,0" VerticalAlignment="Top" Width="800" ColumnWidth="*" AutoGenerateColumns="True" IsReadOnly="True">
+            <DataGrid.ItemContainerStyle>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="RowDoubleClick"/>
+                </Style>
+            </DataGrid.ItemContainerStyle>
+        </DataGrid>
+        <TextBox x:Name="idText" HorizontalAlignment="Left" Height="32" Margin="82,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="122"/>
+        <TextBox x:Name="nameText" HorizontalAlignment="Left" Height="32" Margin="281,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="122"/>
+        <TextBox x:Name="classText" HorizontalAlignment="Left" Height="32" Margin="482,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="122"/>
+        <TextBox x:Name="scorceText" HorizontalAlignment="Left" Height="32" Margin="663,35,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="121"/>
+        <TextBox x:Name="teacherText" HorizontalAlignment="Left" Height="32" Margin="82,90,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="122"/>
+        <Label Content="StudentID" HorizontalAlignment="Left" Margin="6,35,0,0" VerticalAlignment="Top" Height="36" Width="69"/>
+        <Label Content="Name" HorizontalAlignment="Left" Margin="223,35,0,0" VerticalAlignment="Top" Height="36" Width="45"/>
+        <Label Content="Class" HorizontalAlignment="Left" Margin="425,35,0,0" VerticalAlignment="Top" Height="36" Width="39"/>
+        <Label Content="Scorce" HorizontalAlignment="Left" Margin="610,35,0,0" VerticalAlignment="Top" Height="36" Width="48"/>
+        <Label Content="Teacher" HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Height="36" Width="56"/>
+        <Grid HorizontalAlignment="Left" Height="65" Margin="209,72,0,0" VerticalAlignment="Top" Width="575"/>
+        <Button Content="Search" HorizontalAlignment="Left" Margin="223,90,0,0" VerticalAlignment="Top" Width="76" Height="28" Click="SearchFromSQL"/>
+        <Button Content="Edit" HorizontalAlignment="Left" Margin="317,90,0,0" VerticalAlignment="Top" Width="76" Height="28" Click="EditClick"/>
+        <Button Content="Add" HorizontalAlignment="Left" Margin="411,90,0,0" VerticalAlignment="Top" Width="76" Height="28" Click="AddStudent"/>
+        <Button Content="Delete" HorizontalAlignment="Left" Margin="506,90,0,0" VerticalAlignment="Top" Width="76" Height="28" Click="DeleteStudent"/>
+        <Button Content="Back" HorizontalAlignment="Left" Margin="701,91,0,0" VerticalAlignment="Top" Width="83" Height="28" Click="ReturnMenu"/>
+        <Button Content="Reset" HorizontalAlignment="Left" Margin="600,90,0,0" VerticalAlignment="Top" Width="76" Height="28" Click="ResetClick"/>
+
+    </Grid>
+</Page>
